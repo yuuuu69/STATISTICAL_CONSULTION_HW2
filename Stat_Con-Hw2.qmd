@@ -69,7 +69,9 @@ mush_ft <- flextable(mush_tab) %>%
 
 mush_ft
 ```
+
 # Data Description
+
 ```{r, results="asis"}
   
 library(Hmisc)
@@ -84,6 +86,8 @@ data <- data %>%
     stem.width_min = as.numeric(gsub("\\[|,.*|\\]", "", stem.width)),
     stem.width_max = as.numeric(gsub("\\[|.* |\\]", "", stem.width))
   )
+data <- data[, !(names(data) %in% 
+                           c("cap.diameter", "stem.height", "stem.width"))]
 
 latex(describe(data), file="")
 ```

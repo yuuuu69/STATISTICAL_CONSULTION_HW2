@@ -1,0 +1,120 @@
+---
+title: "STATISTICAL CONSULTING HW2"
+subtitle: "R26131125"
+date: today
+author: Zhen-Wei Yu
+format:
+ pdf:
+    include-in-header:
+      - text: |
+         \usepackage{setspace,relsize}
+         \usepackage{geometry}
+         \geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+#mainfont: "Microsoft JhengHei UI"
+#mainfont: "Microsoft JhengHei"
+mainfont: "Microsoft JhengHei Bold"
+editor: visual
+toc: true
+lang: zh-Tw
+documentclass: article
+pdf-engine: xelatex
+execute:
+  tidy: true
+  echo: true
+  warning: false
+  message: false
+---
+
+# Variable Definition
+
+```{r, echo=FALSE}
+
+library(flextable)
+library(officer)
+library(dplyr)
+
+
+mush_tab <- data.frame(
+  Variable = c("family", "name", "class", "Cap-diameter", "cap-shape", "Cap-surface",
+               "cap-color", "does-bruise-or-bleed", "gill-attachment", "gill-spacing",
+               "gill-color", "stem-height", "stem-width", "stem-root", "stem-surface",
+               "stem-color", "veil-type", "veil-color", "has-ring", "ring-type",
+               "Spore-print-color", "habitat", "season"),
+  DataType = c("character", "character", "ordinal", "numerical", "factor", "factor",
+               "factor", "logical", "factor", "factor", "factor", "numerical",
+               "numerical", "factor", "factor", "factor", "factor", "factor", "logical",
+               "factor", "factor", "factor","factor"),
+  Definition = c("String of the name of the family of mushroom species",
+                 "String of the of the mushroom species", "poisonous=p, edibile=e",
+                 "float number(s) in cm",
+                 "bell=b, conical=c, convex=x, flat=f,\nsunken=s, spherical=p, others=o",
+                 " fibrous=i, grooves=g, scaly=y, smooth=s,\nshiny=h, leathery=l, silky=k, sticky=t, wrinkled=w, fleshy=e",
+                 "brown=n, buff=b, gray=g, green=r, pink=p,\npurple=u, red=e, white=w, yellow=y, blue=l,orange=o,\n black=k", "bruises-or-bleeding=t,no=f",
+                 "adnate=a, adnexed=x, decurrent=d, free=e,\nsinuate=s, pores=p, none=f, unknown=?",
+                 "close=c, distant=d, none=f", "see cap-color + none=f",
+                 "float number(s) in cm", "float number(s) in mm",
+                 "bulbous=b, swollen=s, club=c, cup=u, equal=e,\nrhizomorphs=z, rooted=r",
+                 "see cap-surface + none=f", "see cap-color + none=f",
+                 "partial=p, universal=u", "see cap-color + none=f", "ring=t, none=f",
+                 "cobwebby=c, evanescent=e, flaring=r, grooved=g,\nlarge=l, pendant=p, sheathing=s, zone=z, scaly=y,\n movable=m, none=f, unknown=?",
+                 "see cap color", "grasses=g, leaves=l, meadows=m, paths=p, heaths=h,\nurban=u, waste=w, woods=d",
+                 "spring=s, summer=u, autumn=a, winter=w"
+  )
+)
+
+
+mush_ft <- flextable(mush_tab) %>%
+  theme_vanilla() %>%
+  border(border = fp_border(width = 1, color = "black"), part = "all") %>%
+  autofit()
+
+mush_ft
+```
+
+```{r, results="asis"}
+  
+library(reticulate)
+library(Hmisc)
+data <- read.csv("C:/Users/user/Desktop/primary_data.csv", sep = ";")
+data <- data %>% mutate(across(c(family, name), as.character))
+data <- data %>% mutate(across(c(cap.shape, cap.color), as.factor))
+data <- data %>%
+  mutate(
+    Cap.diameter_min = as.numeric(gsub("\\[|,.*|\\]", "", cap.diameter)),
+    Cap.diameter_max = as.numeric(gsub("\\[|.* |\\]", "", cap.diameter)),
+    stem.height_min = as.numeric(gsub("\\[|,.*|\\]", "", stem.height)),
+    stem.height_max = as.numeric(gsub("\\[|.* |\\]", "", stem.height)),
+    stem.width_min = as.numeric(gsub("\\[|,.*|\\]", "", stem.width)),
+    stem.width_max = as.numeric(gsub("\\[|.* |\\]", "", stem.width))
+  )
+
+data <- data[, !(names(data) %in% 
+                           c("cap.diameter", "stem.height", "stem.width")
+                         )]
+
+data
+```
+
+```{r, results="asis"}
+
+latex(describe(data), file="")
+
+```
+
+```{r}
+str(data)
+
+```
+
+
+
+# Table1
+
+```{r}
+
+library(table1)
+library(knitr)
+
+kable(table1(~.|class, data))
+
+```
